@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# ClawHub auto-generated
+.clawhub/
+skill-card.md
+_meta.json
+
+# Local audit reports (不发布，仅本地用)
+.audit-report.md
+.audit-report-prev.md
+
+# Logs
+*.log
+
+# Local config
+config.local.json
+.env.local
+.env
+
+# OS
+.DS_Store
+Thumbs.db
