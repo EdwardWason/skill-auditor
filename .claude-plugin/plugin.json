@@ -1,7 +1,7 @@
 {
   "name": "skill-auditor",
   "displayName": "Skill Auditor",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "对已存在 Skill 做 8 维度全面体检（结构/安全/触发/有效性/竞争/平台/文档/代码质量）。说 技能审计/审计技能/技能体检 时触发。支持成熟度分级+4确认点+整改+回归审计。绝不自动发布。Do NOT use for creating skills or publishing to platforms.",
   "author": "EdwardWason",
   "license": "MIT",

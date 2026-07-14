@@ -126,6 +126,22 @@
 | D5 | plugin.json 与 frontmatter | L2 | 对比 name/version/description | 一致 | Minor |
 | D6 | references 文件被引用 | L2 | 检查孤立文件 | 无孤立 | Minor |
 | D7 | 示例完整性 | L2 | 示例覆盖 4 模块声明的输出格式 | 覆盖 | Minor |
+| D-O1 | 嫁接痕迹：直接继承声明 | L2 | Grep `继承自\|based on\|forked from\|derived from\|extended from` | 零匹配（自引用除外） | Important |
+| D-O2 | 嫁接痕迹：Do NOT 指向具体技能名 | L2 | 正则 `Do NOT use for [a-z][a-z0-9-]+`（点名具体技能名，非场景词） | Do NOT 用场景词（creating/publishing），不点名具体技能 | Minor |
+| D-O3 | 嫁接痕迹：三角分工定位 | L2 | Grep `三角分工\|分工\|XX 负责.*本技能负责\|与.*的分工` | 零匹配 | Important |
+| D-O4 | 嫁接痕迹：发布/交接措辞 | L2 | Grep `交接\|调用.*发布\|交给.*处理\|移交` | 用"建议用户手动发布"替代 | Important |
+| D-O5 | 嫁接痕迹：示例点名其他技能 | L3 | 审查示例段含具体技能名（非自身） | 用场景描述替代或删除点名 | Minor |
+| D-O6 | 嫁接痕迹：CHANGELOG 历史痕迹 | L3 | CHANGELOG 含"XX 创建"/"继承自"/"forked from" | 历史条目重新措辞，用场景词替代 | Minor |
+| D-O7 | 嫁接痕迹：场景描述点名 | L3 | 触发条件/对比段点名具体技能作为对比 | 用场景词（"技能创建"/"技能发布"）替代 | Minor |
+
+**D-O 系列说明**（详细识别与清洗策略见 [`originality-check.md`](originality-check.md)）：
+
+- **适用范围**：派生技能（从其他技能 fork/继承/扩展而来）。原创技能 D-O1~O7 全部自然 PASS，不影响评分。
+- **核心原则**：能用「场景描述」替代「具体技能名」就替代，不能替代的（如自引用、自身触发词）保留。
+- **L1 跳过**：原型阶段允许快速派生，D-O 系列不检查。
+- **L2 检查**：D-O1/O3/O4（Important 类）建议修。
+- **L3 检查**：D-O1~O7 全部，Important 必修，Minor 建议修。
+- **触发方式**：用户说"原创度审计"/"嫁接清洗"可单独触发 D-O 系列检查（详见 SKILL.md 触发词段）。
 
 ---
 

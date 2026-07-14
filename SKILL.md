@@ -3,7 +3,7 @@ name: "skill-auditor"
 slug: "skill-auditor-ai"
 displayName: "Skill Auditor"
 description: "对已存在 Skill 做 8 维度全面体检（结构/安全/触发/有效性/竞争/平台/文档/代码质量）。说 技能审计/审计技能/技能体检 时触发。支持成熟度分级+4确认点+整改+回归审计。绝不自动发布。Do NOT use for creating skills or publishing to platforms."
-version: "1.1.0"
+version: "1.2.0"
 license: "MIT"
 summary: "对已存在 Skill 做 8 维度全面体检，支持三级成熟度分级+4确认点+整改模式+回归审计。绝不自动发布。"
 allowed-tools: "Read, Write, Edit, Glob, Grep, LS, WebFetch, AskUserQuestion"
@@ -15,12 +15,12 @@ allowed-tools: "Read, Write, Edit, Glob, Grep, LS, WebFetch, AskUserQuestion"
 
 ## 何时触发
 
-**触发词**：「技能审计」/「审计技能」/「skill审计」/「技能体检」
+**触发词**：「技能审计」/「审计技能」/「skill审计」/「技能体检」/「原创度审计」/「嫁接清洗」/「清洗嫁接痕迹」
 
 **与相似场景区分**：
-- 「技能创建/技能熔炉」= 从 0 创建新技能
-- 「技能发布」= 推送到外部平台
-- 「技能审计」= 对已存在 Skill 做 8 维度体检 + 成熟度分级 + 整改 + 回归（本技能）
+- 「技能创建/技能熔炉」= 从 0 创建新技能；「技能发布」= 推送到外部平台
+- 「技能审计」= 8 维度体检 + 成熟度分级 + 整改 + 回归（本技能）
+- 「原创度审计」/「嫁接清洗」= 仅执行 D-O 系列检查 + 清洗（本技能的专项子模式）
 
 **前置条件**：用户给出目标 Skill 路径或名称 + 目录下有 SKILL.md
 
@@ -69,7 +69,7 @@ allowed-tools: "Read, Write, Edit, Glob, Grep, LS, WebFetch, AskUserQuestion"
 | E | 功能有效性 | 声明一致性/输出格式/增量价值 |
 | C | 同类竞争 | SkillHub API + 腾讯9维度 + 差异化 |
 | P | 平台合规 | TRACE五维度 + SkillSpector9项 + 文件限制 |
-| D | 文档一致性 | 引用一致/版本号同步/中英文同步 |
+| D | 文档一致性 | 引用一致/版本号同步/中英文同步/嫁接痕迹(D-O1~O7) |
 | Q | 代码质量 | 错误处理/资源管理/命名/复杂度 |
 
 **详细检查项**：读取 [`references/audit-dimensions.md`](references/audit-dimensions.md)
@@ -98,8 +98,15 @@ allowed-tools: "Read, Write, Edit, Glob, Grep, LS, WebFetch, AskUserQuestion"
 
 ### Phase 4.5: 整改模式（仅用户选 A）
 
-按 P0→P1→P2 顺序修复 → 每个修复后验证 → 输出整改报告
-**约束**：最小化改动 / 只修 Finding 不重构 / 不自动发布
+用户选 A 后，追加选择整改子模式：
+
+- **A1. 标准整改**：按 P0→P1→P2 顺序修复所有 Finding（含 D-O 类）
+- **A2. 原创度优化**：仅集中清洗 D-O1~O7 嫁接痕迹（适合已审计过、只想清洗派生痕迹的场景）
+- **A3. 两者都做**：先标准整改，再原创度优化
+
+**A2 子模式**：扫描 7 类痕迹 → 分类标记 → 【确认点 O】用户选择 → 执行清洗 → 7 项验证 → 回归报告。详细流程见 [`references/originality-check.md`](references/originality-check.md)。
+
+**约束**：最小化改动 / 只改措辞不改语义 / 不自动发布 / 清洗边界（不删功能描述/触发词/规则/references 自引用/CHANGELOG 版本号）
 
 ### Phase 5: 回归验证 + 【确认点3】
 
@@ -136,43 +143,32 @@ T 维度有 Critical → 综合状态 = ❌ FAIL（一票否决）
 3. **成熟度可覆盖**：用户可强制指定等级（如"对原型做全量审计"），覆盖自动识别
 4. **整改最小化**：每个修复只改 Finding 涉及的行，不做"顺便优化"，不重构
 5. **Pre-Scan 必做**：LS 列出所有文件（含 .gitignore 中的），Grep 会跳过 .gitignore 文件
-6. **网络降级**：SkillHub API 不可达时，C 维度跳过并标注，其他维度正常执行
-7. **回归前提**：回归模式需要存在上次 `.audit-report.md`，不存在则降级为首次全量审计
-8. **L1/L2 不显示发布选项**：确认点3 的 B 选项（发布）仅 L3 阶段显示
-9. **模糊回答追问**：确认点4 的发布确认，模糊回答（如"好吧"）→ 追问"请明确确认"
-10. **Finding 必含位置**：每个 Finding 必须标注 `file:line` 或具体文件路径
+6. **网络降级**：SkillHub API 不可达时 C 维度跳过并标注；回归模式需存在上次 `.audit-report.md`，不存在则降级为首次全量审计
+7. **L1/L2 不显示发布选项**：确认点3 的 B 选项（发布）仅 L3 阶段显示
+8. **模糊回答追问**：确认点4 的发布确认，模糊回答（如"好吧"）→ 追问"请明确确认"
+9. **Finding 必含位置**：每个 Finding 必须标注 `file:line` 或具体文件路径
 
 ## 示例
 
 ### 示例1：L2 迭代阶段全量审计 + 整改 + 回归
 
 **用户**："技能审计 wx-peitu"
-
 **Phase 0**：识别 L2（references/存在 + version 7.1.0 + CHANGELOG 有更新）
-**【确认点1】**："识别为 L2 迭代阶段，建议 S/T/A/E/D/Q 6维度。确认？" → 用户选 A
-
-**Phase 1-3**：6 维度审计完成
-**Phase 4**：报告 综合分 7.4 ⚠️，1 Critical + 2 Important
-**【确认点2】**："进入整改？" → 用户选 A
-
-**Phase 4.5**：修复 P0(凭证泄露) + P1(行数超标) → 验证通过
+**【确认点1】**："识别为 L2，建议 S/T/A/E/D/Q 6维度。确认？" → 用户选 A
+**Phase 1-3**：6 维度审计完成 → 报告 综合分 7.4 ⚠️，1 Critical + 2 Important
+**【确认点2】**："进入整改？" → 用户选 A → 修复 P0(凭证泄露) + P1(行数超标) → 验证通过
 **Phase 5**：回归审计 综合分 7.4→8.5 ↑
-**【确认点3】**："L2 阶段不显示发布选项。再做回归/结束？" → 用户选 C 结束
+**【确认点3】**："L2 不显示发布选项。再做回归/结束？" → 用户选 C 结束
 
 ### 示例2：L3 发布阶段 + 发布交接
 
 **用户**："技能审计 web-to-fim，准备发布"
-
 **Phase 0**：识别 L3（用户明示"准备发布" + version 3.3.0 + references 5文件）
-**【确认点1】**："识别为 L3 发布阶段，全量 8 维度。确认？" → 用户选 A
-
+**【确认点1】**："识别为 L3，全量 8 维度。确认？" → 用户选 A
 **Phase 1-3**：8 维度审计完成，综合分 8.0 ✅
-**【确认点2】**："进入整改？" → 用户选 A（修复 1 个 Minor）
-
-**Phase 4.5**：修复 Q-类型注解 → 验证通过
+**【确认点2】**："进入整改？" → 用户选 A（修复 1 个 Minor）→ 验证通过
 **Phase 5**：回归审计 综合分 8.0→8.5 ↑
 **【确认点3】**："L3 阶段。再做回归/发布/结束？" → 用户选 B
-
 **【确认点4】**："⚠️ 即将发布 web-to-fim v3.3.0 到三平台。是否发布？"
 用户明确选 A "是，发布" → 提供发布建议（建议用户手动发布）
 
@@ -182,18 +178,23 @@ T 维度有 Critical → 综合状态 = ❌ FAIL（一票否决）
 **输出**："建议用户手动发布到三平台。审计报告已保存到 .audit-report.md"
 **不自动执行发布操作**
 
-### 示例4：模糊回答追问
+### 示例4：原创度审计 + 嫁接清洗（A2 子模式）
 
-**【确认点4】**："是否发布？" → 用户："好吧"
-**追问**："请明确确认：是否发布到三平台？A.是 B.否"
-用户选 A → 提供发布建议（建议用户手动发布）
+**用户**："原创度审计 skill-xxx"
+
+**Phase O-1**：扫描 7 类嫁接痕迹，命中 D-O1(继承声明 3处) + D-O4(交接措辞 2处) + D-O6(CHANGELOG 1处)
+**【确认点 O】**："6 处嫁接痕迹，全部清洗？" → 用户选 A
+**Phase O-4**：执行清洗（"继承自 skill-yyy" → "定义 X 维度方法论"；"交接 skill-zzz" → "建议用户手动发布"）
+**Phase O-5**：7 项验证全部 PASS（零残留/管线完整/功能不退化/引用不断链/CHANGELOG 可追溯/自引用保留/触发词保留）
+**Phase O-6**：原创度评分 7.2 → 10.0 ↑
 
 ## References
 
 - **[`references/maturity-model.md`](references/maturity-model.md)** — 三级成熟度详细模型（识别信号 + 判定规则 + 各等级审计范围）
-- **[`references/audit-dimensions.md`](references/audit-dimensions.md)** — 8 维度详细检查项
+- **[`references/audit-dimensions.md`](references/audit-dimensions.md)** — 8 维度详细检查项（含 D-O1~O7 嫁接痕迹检查项）
 - **[`references/security-scan.md`](references/security-scan.md)** — 安全扫描详细模式（5层 + SkillSpector 9项）
 - **[`references/benchmarking.md`](references/benchmarking.md)** — 同类比对方法论（SkillHub + 腾讯9维度）
 - **[`references/report-template.md`](references/report-template.md)** — 审计报告模板（含整改/回归模板）
 - **[`references/regression.md`](references/regression.md)** — 回归审计方法论（差异对比规则）
 - **[`references/examples.md`](references/examples.md)** — 补充示例（单维度/L1/回归/批量/整改独立触发）
+- **[`references/originality-check.md`](references/originality-check.md)** — 原创度审计与嫁接清洗（7 类痕迹识别+清洗策略+验证清单+主动触发模式）
