@@ -18,15 +18,17 @@ This skill focuses on **independent deep audit + regression verification**, not 
 
 ```
 Skill Creation  → Create new skills from scratch (not this skill's responsibility)
-Skill Publishing → Push to external platforms (not this skill's responsibility)
+Skill Publishing → Push to external platforms (not this skill's responsibility; this skill only provides publishing suggestions, executed manually by the user)
 Skill Audit     → Independent deep audit + maturity grading + remediation + regression (this skill)
 ```
 
-This skill **defaults to read-only audit, remediation requires user authorization, never auto-publishes**.
+This skill **defaults to read-only audit, remediation requires user authorization, never executes publishing operations**.
 
-> **User Notice**: The remediation mode (Phase 4.5) modifies the audited Skill's files.
-> Defaults to read-only audit; modifications only occur after the user explicitly selects "Enter remediation mode" at confirmation point 2.
-> To skip remediation, select "Report only". Publishing requires explicit user authorization at confirmation point 4.
+> **User Notice**: The remediation mode (Phase 4.5) and originality cleanup submode (A2) modify the audited Skill's files.
+> - Defaults to read-only audit; modifications only occur after the user explicitly selects "Enter remediation mode" at confirmation point 2
+> - Originality cleanup (Phase O-4) requires explicit user authorization at confirmation point O before executing Edit; **no trigger phrase can bypass confirmation point O**
+> - To skip remediation, select "Report only"
+> - Publishing: this skill **does not execute publishing**; it only provides publishing suggestions after explicit user authorization at confirmation point 4, with the user manually publishing to the three platforms
 
 ## Trigger Words
 
