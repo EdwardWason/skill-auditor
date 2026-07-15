@@ -2,6 +2,24 @@
 
 All notable changes to this skill will be documented in this file.
 
+## [1.2.1] - 2026-07-15
+
+### Fixed
+- **安全修复**：嫁接清洗触发词不再跳过确认点 O。所有触发词（含"嫁接清洗"/"清洗嫁接痕迹"）都必须经过确认点 O 用户授权后才能执行 Edit 操作（修复 SkillSpector Finding #4/#6：Missing User Warnings + Intent-Code Divergence）
+- originality-check.md Phase O-4 段追加前置条件说明：未授权 = 只输出清单，不修改任何文件
+- originality-check.md 主动触发模式表追加安全约束：任何触发词都不能绕过确认点 O
+
+### Changed
+- README.md 用户须知段优化：明确"本技能不执行发布，仅提供发布建议由用户手动执行"，消除"不负责发布"与"用户授权后可发布"的措辞矛盾（修复 SkillSpector Finding #1/#2：Description-Behavior Mismatch + Intent-Code Divergence）
+- README.md 用户须知段补充原创度清洗子模式（A2）的授权说明（修复 SkillSpector Finding #3）
+- README.en.md 同步以上变更
+
+### SkillSpector Findings 评估
+- Finding #1/#2（发布职责矛盾）：过度解读，但措辞优化可降低误判
+- Finding #3（审计却改文件）：合理担忧，已通过强化授权说明解决
+- Finding #4/#6（嫁接清洗跳过确认点）：**确实有问题，已修复** ✅
+- Finding #5（触发词太宽泛）：过度解读，不改（审计类技能固有特性）
+
 ## [1.2.0] - 2026-07-14
 
 ### Added
