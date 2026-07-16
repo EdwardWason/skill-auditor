@@ -2,6 +2,46 @@
 
 All notable changes to this skill will be documented in this file.
 
+## [2.0.0] - 2026-07-16
+
+### Design Principle
+v2.0.0 是 skill-auditor 的重大升级，基于对业界主流 Skill 平台开源仓库和 OWASP Agentic Skills Top 10 安全框架的深度研究，将审计能力从"基础 5 层扫描"升级为"平台级对齐审计"，并新增 Skill 撰写指导能力。
+
+### Added — T 维度对齐 OWASP AST10
+- 新增 T-AST 系列：AST01 恶意技能 / AST02 供应链 / AST03 过度授权 / AST04 元数据不安全 / AST05 不安全反序列化 / AST06 隔离薄弱 / AST07 更新漂移 / AST10 跨平台复用（8 个检查项）
+- 新增 T-LT 系列：Lethal Trifecta 红线检查（三要素同时满足 = Critical：访问私有数据 + 暴露不可信内容 + 对外通信）
+- 审计覆盖面从 AST10 的 3/10 提升到 8/10
+
+### Added — D 维度声明-行为一致性
+- 新增 D-M1：frontmatter env 声明 vs 实际环境变量引用
+- 新增 D-M2：frontmatter bins 声明 vs 实际 CLI 调用
+- 新增 D-M3：frontmatter metadata.openclaw 完整性
+- 解决 v1.2.1 被 SkillSpector 报 6 个 finding 的根因（声明-行为不一致）
+
+### Added — P 维度 Coherence 审计
+- 新增 P-C1：Name-Summary Coherence（name 与 description 对齐）
+- 新增 P-C2：Summary-Behavior Coherence（description 覆盖实际行为）
+- 新增 P-C3：Metadata-Behavior Coherence（frontmatter 声明与代码行为一致）
+- 新增 P-C4：Power-Proportionality（权力与用途成比例）
+
+### Added — 双维度评分体系
+- 新增 Risk Level：Low / Medium / High（基于技能声明的权力评估）
+- 新增 Audit Status：Pass / Review / Warn / Fail（基于审计结果评估）
+- 新增 Risk-Status 矩阵：High Risk + Pass = 合理（权力大但已披露且比例适当）
+
+### Added — Skill 撰写指导能力
+- 新建 references/skill-authoring-guide.md（486 行）：5 大原则 + frontmatter 规范 + description 公式 + 权力-风险自评 + 6 大反模式 + 10 项发布前自检清单 + 平台规范要点
+- 审计发现问题时可引用指南章节提供改进建议
+- 也可作为开发者独立撰写 Skill 的参考指南
+
+### Changed
+- audit-dimensions.md：T 维度拆分为 T1-T14 基础 + T-AST 系列 + T-LT 系列
+- audit-dimensions.md：D 维度新增 D-M 系列段
+- audit-dimensions.md：P 维度新增 P-C 系列段
+- audit-dimensions.md：评分计算段新增双维度评分
+- report-template.md：综合评分段新增双维度评分表
+- SKILL.md：维度概览标注新增项 / 评分标准新增双维度 / References 新增 skill-authoring-guide.md
+
 ## [1.2.1] - 2026-07-15
 
 ### Fixed
