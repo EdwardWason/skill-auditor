@@ -3,7 +3,7 @@ name: "skill-auditor"
 slug: "skill-auditor-ai"
 displayName: "Skill Auditor"
 description: "对已存在 Skill 做 8 维度全面体检（结构/安全/触发/有效性/竞争/平台/文档/代码质量）。说 技能审计/审计技能/技能体检 时触发。支持成熟度分级+4确认点+整改+回归审计。绝不自动发布。Do NOT use for creating skills or publishing to platforms."
-version: "1.2.1"
+version: "2.0.0"
 license: "MIT"
 summary: "对已存在 Skill 做 8 维度全面体检，支持三级成熟度分级+4确认点+整改模式+回归审计。绝不自动发布。"
 allowed-tools: "Read, Write, Edit, Glob, Grep, LS, WebFetch, AskUserQuestion"
@@ -64,12 +64,12 @@ allowed-tools: "Read, Write, Edit, Glob, Grep, LS, WebFetch, AskUserQuestion"
 | 代号 | 维度 | 核心检查 |
 |------|------|---------|
 | S | 结构合规 | frontmatter / 4模块 / ≤200行 / 渐进式披露 |
-| T | 安全合规 | 凭证/路径/危险命令/YARA/SSD3/MCP |
+| T | 安全合规 | 凭证/路径/危险命令/YARA/SSD3/MCP + **AST10 对齐** + **Lethal Trifecta** |
 | A | 触发可靠性 | 正例/反例/触发词冲突/关键词前置 |
 | E | 功能有效性 | 声明一致性/输出格式/增量价值 |
 | C | 同类竞争 | SkillHub API + 腾讯9维度 + 差异化 |
-| P | 平台合规 | TRACE五维度 + SkillSpector9项 + 文件限制 |
-| D | 文档一致性 | 引用一致/版本号同步/中英文同步/嫁接痕迹(D-O1~O7) |
+| P | 平台合规 | TRACE五维度 + SkillSpector9项 + 文件限制 + **Coherence 审计** |
+| D | 文档一致性 | 引用一致/版本号同步/中英文同步 + **声明-行为一致性(D-M)** + 嫁接清洗(D-O) |
 | Q | 代码质量 | 错误处理/资源管理/命名/复杂度 |
 
 **详细检查项**：读取 [`references/audit-dimensions.md`](references/audit-dimensions.md)
@@ -136,6 +136,11 @@ allowed-tools: "Read, Write, Edit, Glob, Grep, LS, WebFetch, AskUserQuestion"
 每维度 0-10 分，综合分加权（T×2.0, P×1.5, S/A/E×1.0, C/D/Q×0.5）
 T 维度有 Critical → 综合状态 = ❌ FAIL（一票否决）
 
+**双维度评分（v2.0.0）**：
+- **Risk Level**：Low（只读）/ Medium（改本地文件）/ High（外部推送/网络外发）— 评估权力大小
+- **Audit Status**：Pass / Review / Warn / Fail — 评估权力是否合理披露
+- High Risk + Pass = 合理（权力大但已披露且比例适当）
+
 ## 规则
 
 1. **绝不自动发布**：任何阶段都不自动执行发布操作，必须用户在确认点4明确选"是，发布"后才提供发布建议
@@ -191,10 +196,10 @@ T 维度有 Critical → 综合状态 = ❌ FAIL（一票否决）
 ## References
 
 - **[`references/maturity-model.md`](references/maturity-model.md)** — 三级成熟度详细模型（识别信号 + 判定规则 + 各等级审计范围）
-- **[`references/audit-dimensions.md`](references/audit-dimensions.md)** — 8 维度详细检查项（含 D-O1~O7 嫁接痕迹检查项）
+- **[`references/audit-dimensions.md`](references/audit-dimensions.md)** — 8 维度详细检查项（含 AST10 + Lethal Trifecta + D-M + D-O + P-C）
 - **[`references/security-scan.md`](references/security-scan.md)** — 安全扫描详细模式（5层 + SkillSpector 9项）
 - **[`references/benchmarking.md`](references/benchmarking.md)** — 同类比对方法论（SkillHub + 腾讯9维度）
-- **[`references/report-template.md`](references/report-template.md)** — 审计报告模板（含整改/回归模板）
+- **[`references/report-template.md`](references/report-template.md)** — 审计报告模板（含双维度评分 + 整改/回归模板）
 - **[`references/regression.md`](references/regression.md)** — 回归审计方法论（差异对比规则）
-- **[`references/examples.md`](references/examples.md)** — 补充示例（单维度/L1/回归/批量/整改独立触发）
-- **[`references/originality-check.md`](references/originality-check.md)** — 原创度审计与嫁接清洗（7 类痕迹识别+清洗策略+验证清单+主动触发模式）
+- **[`references/originality-check.md`](references/originality-check.md)** — 原创度审计 + 嫁接清洗（D-O 系列）
+- **[`references/skill-authoring-guide.md`](references/skill-authoring-guide.md)** — 高质量 Skill 撰写指南（5大原则 + frontmatter 规范 + 反模式 + 自检清单）
