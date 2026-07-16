@@ -29,6 +29,8 @@
 
 ## 综合评分
 
+### 基础评分表
+
 | 维度 | 代号 | 评分 | 状态 | 说明 |
 |------|------|------|------|------|
 | 结构合规 | S | X.X/10 | ✅ / ⚠️ / ❌ | 一句话说明 |
@@ -41,10 +43,18 @@
 | 代码质量 | Q | X.X/10 / 跳过(无代码) | ✅ / ⚠️ / ❌ / ➖ | 一句话说明 |
 | **综合** | | **X.X/10** | ✅ / ⚠️ / ❌ | 加权平均 |
 
+### 双维度评分（v2.0.0）
+
+| 维度 | 结果 | 说明 |
+|------|------|------|
+| **Risk Level** | Low / Medium / High | 基于技能声明的权力评估 |
+| **Audit Status** | Pass / Review / Warn / Fail | 基于审计结果评估 |
+| **综合判定** | ✅ 可发布 / ⚠️ 修复后可发布 / ❌ 不可发布 | Risk-Status 矩阵交叉判定 |
+
 **状态判定**：
-- ✅ PASS：综合分 ≥ 7.0 且无 Critical（L1 只看 Critical）
-- ⚠️ WARN：综合分 5.0-6.9 或有 Important（L2/L3）
-- ❌ FAIL：综合分 < 5.0 或有 Critical（T 维度一票否决）
+- ✅ PASS：综合分 ≥ 7.0 且无 Critical（L1 只看 Critical）+ Audit Status = Pass
+- ⚠️ WARN：综合分 5.0-6.9 或有 Important（L2/L3）+ Audit Status = Review/Warn
+- ❌ FAIL：综合分 < 5.0 或有 Critical（T 维度一票否决）+ Audit Status = Fail
 
 ## Findings 列表
 
