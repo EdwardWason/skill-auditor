@@ -3,10 +3,22 @@ name: "skill-auditor"
 slug: "skill-auditor-ai"
 displayName: "Skill Auditor"
 description: "对已存在 Skill 做 8 维度全面体检（结构/安全/触发/有效性/竞争/平台/文档/代码质量）。说 技能审计/审计技能/技能体检 时触发。支持成熟度分级+4确认点+整改+回归审计。绝不自动发布。Do NOT use for creating skills or publishing to platforms."
-version: "2.0.0"
+version: "2.0.1"
 license: "MIT"
 summary: "对已存在 Skill 做 8 维度全面体检，支持三级成熟度分级+4确认点+整改模式+回归审计。绝不自动发布。"
 allowed-tools: "Read, Write, Edit, Glob, Grep, LS, WebFetch, AskUserQuestion"
+metadata:
+  openclaw:
+    skillKey: "skill-auditor"
+    emoji: "🔍"
+    homepage: "https://github.com/EdwardWason/skill-auditor"
+    os: ["windows", "macos", "linux"]
+    requires:
+      bins: []
+      env: []
+    primaryEnv: ""
+    envVars: []
+    always: false
 ---
 
 # 技能审计师
