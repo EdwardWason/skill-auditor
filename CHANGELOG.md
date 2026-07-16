@@ -2,6 +2,22 @@
 
 All notable changes to this skill will be documented in this file.
 
+## [2.0.1] - 2026-07-16
+
+### Fixed
+- **D-M3 / T-AST03 / T-AST04 / P-C3 同源修复**：SKILL.md frontmatter 新增 `metadata.openclaw` 段（skillKey/emoji/homepage/os/requires/primaryEnv/envVars/always），消除 v2.0.0 自举审计发现的"声明-行为不一致"问题
+- **plugin.json permissions.filesystem 声明扩展**：`read`/`write` 追加 `<audited-skill-dir>/` 占位符，完整覆盖 Phase 4.5 整改模式声明的"Edit/Write 修改被审计 Skill 文件"行为（原 v2.0.0 只声明 .audit-report.md，与整改模式行为不一致）
+- **T-AST10 跨平台复用声明**：metadata.openclaw.os 声明 `["windows", "macos", "linux"]`
+
+### Design Note
+- **T-LT Lethal Trifecta 自检结论**：skill-auditor 满足 2/3 要素（T-LT2 暴露不可信内容：被审计 Skill 是外部输入 + T-LT3 对外通信：WebFetch SkillHub API），不满足 T-LT1 访问私有数据。2/3 不构成 Lethal Trifecta，作为审计类技能的固有特性记录。未来如添加读取用户凭证功能（如审计凭证管理类技能时检查凭证格式），需重新评估是否触发 3/3 红线。
+
+### Self-Audit
+- 执行 v2.0.0 自举审计（用 v2.0.0 新增的 4 个检查项系列审计 skill-auditor 自身）
+- 发现 1 个 Important（D-M3 / T-AST03 / T-AST04 / P-C3 同源声明-行为不一致）+ 1 个 Minor（T-AST10）+ 1 个 FYI（T-LT 2/3）
+- 本版本修复 Important + Minor，FYI 记录到本条目作为设计说明
+- 自审报告保存到 .audit-report.md（.gitignore 已排除）
+
 ## [2.0.0] - 2026-07-16
 
 ### Design Principle
