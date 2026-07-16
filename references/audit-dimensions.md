@@ -27,6 +27,8 @@
 
 **详细扫描模式见 [`security-scan.md`](security-scan.md)**，本表为概览：
 
+### T1-T14 基础安全扫描（原有）
+
 | 编号 | 检查项 | 等级 | 方法 | 严重性 |
 |------|--------|------|------|--------|
 | T1 | Layer 1 凭证泄露 | L2 | Grep 扩展模式 | Critical if 真实凭证 |
@@ -43,6 +45,34 @@
 | T12 | Pre-Scan 文件清单 | L2 | LS 检查凭证文件和临时脚本 | Critical if 存在 |
 | T13 | 最小权限校验 | L2 | allowed-tools 与任务无关权限删除 | Minor |
 | T14 | 国内可用性 | L3 | 依赖 API 国内可访问 | Important if 海外独占 |
+
+### T-AST 系列：OWASP AST10 对齐扫描（v2.0.0 新增）
+
+> **背景**：业界主流 Skill 平台采用 OWASP Agentic Skills Top 10（AST10）作为审计框架基础。skill-auditor 对齐 AST10 以确保审计覆盖面与平台一致。
+
+| 编号 | 检查项 | 等级 | 方法 | PASS 标准 | 严重性 |
+|------|--------|------|------|-----------|--------|
+| T-AST01 | 恶意技能（Malicious Skills） | L2 | T1-T4 综合 | 无恶意载荷 | Critical |
+| T-AST02 | 供应链攻击（Supply Chain） | L3 | 检查外部源信任 + hash pinning + 依赖固定版本 | 外部依赖有版本/hash 锁定 | Important |
+| T-AST03 | 过度授权（Over-Privileged） | L3 | T7 + T13 + allowed-tools 审查 | 权力与用途成比例 | Important |
+| T-AST04 | 元数据不安全（Insecure Metadata） | L2 | D-M1/M2/M3 声明-行为一致性 | frontmatter 完整声明实际行为 | Important |
+| T-AST05 | 不安全反序列化（Unsafe Deserialization） | L3 | 检查 YAML/JSON 解析是否用 safe_load + 无 eval 解析 | 用 safe_load / json.loads，无 eval | Important |
+| T-AST06 | 隔离薄弱（Weak Isolation） | L3 | 检查是否有执行边界 + 沙箱声明 + 不越权访问其他 Skill | 有明确行为边界 | Important |
+| T-AST07 | 更新漂移（Update Drift） | L3 | 检查版本是否固定 + 是否有 hash 验证 + CHANGELOG 连续性 | 版本连续 + CHANGELOG 完整 | Minor |
+| T-AST10 | 跨平台复用（Cross-Platform Reuse） | L3 | 检查是否声明平台兼容性 + OS 限制 + 依赖可移植性 | 声明 OS 限制或跨平台兼容 | Minor |
+
+> AST08（Poor Scanning）/ AST09（No Governance）是针对平台和组织的，不适用于单 Skill 审计，跳过。
+
+### T-LT：Lethal Trifecta 红线检查（v2.0.0 新增）
+
+> **背景**：OWASP AST10 提出的"Lethal Trifecta（致命三要素）"——三者同时满足 = Critical 风险，应重新设计。
+
+| 编号 | 检查项 | 等级 | 方法 | 判定 |
+|------|--------|------|------|------|
+| T-LT1 | 要素1：访问私有数据 | L3 | 检查是否读取 SSH keys / API credentials / wallet files / browser data / memory 文件 | 是/否 |
+| T-LT2 | 要素2：暴露于不可信内容 | L3 | 检查是否处理 skill instructions / memory files / email / Slack 等外部输入 | 是/否 |
+| T-LT3 | 要素3：能对外通信 | L3 | 检查是否有 network egress / webhook / curl / 外部 API 调用 | 是/否 |
+| T-LT | 三要素汇总 | L3 | T-LT1 AND T-LT2 AND T-LT3 | 三者都"是" → **Critical**，建议重新设计 |
 
 ---
 
@@ -105,6 +135,8 @@
 
 **仅 L3 执行**：
 
+### P1-P5 基础平台合规（原有）
+
 | 编号 | 检查项 | 等级 | 方法 | 严重性 |
 |------|--------|------|------|--------|
 | P1 | TRACE 五维度 | L3 | T/R/A/C/E 综合 | Critical if 任一 FAIL |
@@ -112,6 +144,26 @@
 | P3 | SkillHub 文件限制 | L3 | 检查 .gitignore/LICENSE/.claude-plugin/.github | Important if 存在 |
 | P4 | ClawHub 自动文件 | L3 | 检查 skill-card.md/.clawhub/ | Important if 存在 |
 | P5 | 三平台 frontmatter 兼容 | L3 | ClawHub(name/description) + SkillHub(slug/displayName/version/summary/license) | Important if 缺字段 |
+
+### P-C 系列：Coherence 审计子模式（v2.0.0 新增）
+
+> **背景**：业界主流 Skill 平台审计的核心哲学是"coherence（一致性）"而非"找恶意"——强大行为不自动等于坏，关键是权力是否"已披露、目的对齐、比例适当"。P-C 系列系统化检查一致性。
+
+| 编号 | 检查项 | 等级 | 方法 | PASS 标准 | 严重性 |
+|------|--------|------|------|-----------|--------|
+| P-C1 | Name-Summary Coherence | L3 | 对比 frontmatter `name` 与 `description`/`summary` | name 和 description 描述同一件事 | Minor if 不对齐 |
+| P-C2 | Summary-Behavior Coherence | L3 | 对比 `description` 与 SKILL.md 实际行为（任务段+规则段） | description 覆盖实际行为范围 | Important if 漏报行为 |
+| P-C3 | Metadata-Behavior Coherence | L3 | 对比 frontmatter 声明（env/bins/allowed-tools）与代码实际行为 | 声明 = 实际（即 D-M1/M2 通过） | Important if 不一致 |
+| P-C4 | Power-Proportionality | L3 | 评估权力是否与用途成比例（审计技能需要推送权力 = 不合理；发布技能需要推送权力 = 合理） | 权力与用途成比例 | Important if 比例失当 |
+
+**P-C 系列说明**：
+
+- **核心哲学**：审计不是"找恶意"，是"查一致性"。强大行为不自动等于坏，关键是权力是否"已披露、目的对齐、比例适当"。
+- **P-C4 Power-Proportionality 举例**：
+  - ✅ 合理：发布技能（skill-publisher）需要 git push / clawhub publish 权力
+  - ❌ 不合理：审计技能（skill-auditor）需要 git push 权力（审计不应推送代码）
+  - ❌ 不合理：只读分析技能需要 Edit/Write 权力（除非有整改模式且需授权）
+- **触发方式**：用户说"一致性审计"/"coherence 审计"可单独触发 P-C 系列检查。
 
 ---
 
@@ -143,6 +195,26 @@
 - **L3 检查**：D-O1~O7 全部，Important 必修，Minor 建议修。
 - **触发方式**：用户说"原创度审计"/"嫁接清洗"可单独触发 D-O 系列检查（详见 SKILL.md 触发词段）。
 
+### D-M 系列：声明-行为一致性三层检查（v2.0.0 新增）
+
+> **背景**：业界主流 Skill 平台审计框架的核心哲学是"coherence（一致性）"——name/summary/metadata/requested authority/actual content 是否对齐。声明-行为不一致是 SkillSpector findings 的主要来源。
+
+| 编号 | 检查项 | 等级 | 方法 | PASS 标准 | 严重性 |
+|------|--------|------|------|-----------|--------|
+| D-M1 | frontmatter env 声明 vs 实际环境变量引用 | L2 | Grep 代码中 `os.environ\|getenv\|winreg.*QueryValueEx` 提取环境变量名，对比 frontmatter `metadata.openclaw.requires.env` 或 `envVars` 声明 | 代码引用的所有环境变量都在 frontmatter 声明 | Important if 未声明 |
+| D-M2 | frontmatter bins 声明 vs 实际 CLI 调用 | L2 | Grep 代码中 `subprocess\|os.system\|RunCommand` 提取 CLI 工具名，对比 frontmatter `metadata.openclaw.requires.bins` 或 `requires.anyBins` 声明 | 代码调用的所有 CLI 工具都在 frontmatter 声明 | Important if 未声明 |
+| D-M3 | frontmatter metadata.openclaw 完整性 | L3 | 检查 frontmatter 是否包含 `metadata.openclaw` 段（requires.env/bins/config/primaryEnv） | 有 metadata.openclaw 段或等价权限声明 | Important if 缺失 |
+
+**D-M 系列说明**：
+
+- **适用范围**：所有 Skill（不只是派生技能）。原创技能也必须声明-行为一致。
+- **核心原则**：frontmatter 是 Skill 的"契约"，代码是"实现"。契约和实现必须一致。
+- **L1 跳过**：原型阶段允许不完整声明。
+- **L2 检查**：D-M1/M2（env/bins 声明）建议修。
+- **L3 检查**：D-M1/M2/M3 全部，Important 必修。
+- **修复方式**：参见 [`skill-authoring-guide.md`](skill-authoring-guide.md) 第二部分 frontmatter 规范。
+- **触发方式**：用户说"声明一致性审计"可单独触发 D-M 系列检查。
+
 ---
 
 ## 维度 Q：代码质量审计（Code Quality）
@@ -166,6 +238,8 @@
 
 ## 评分计算
 
+### 基础评分（0-10 分，保留）
+
 每个维度 0-10 分：
 - 9-10: 优秀，无问题或仅 FYI
 - 7-8: 良好，少量 Minor
@@ -179,3 +253,44 @@
 ```
 
 **一票否决**：T 维度有 Critical → 综合状态 = ❌ FAIL（不论综合分多高）
+
+### 双维度评分（v2.0.0 新增）
+
+> **背景**：业界主流 Skill 平台采用"Risk Level + Audit Status"正交双维度模型——高风险不等于不通过，关键是权力是否合理披露。
+
+#### Risk Level（权力大小）
+
+基于 Skill 声明的权力评估，与审计结果无关：
+
+| Risk Level | 判定条件 | 典型技能 |
+|-----------|---------|---------|
+| **Low** | 只读分析，无副作用，无外部通信 | 审计技能、文档转换技能 |
+| **Medium** | 修改本地文件，有副作用但限于本地 | 整改模式技能、本地文件处理技能 |
+| **High** | 推送外部平台 / 网络外发 / 访问私有数据 | 发布技能、同步技能、邮件技能 |
+
+**Risk Level 评估信号**：
+- allowed-tools 含 Bash/git push/curl → High 倾向
+- 有 Edit/Write 但无外部通信 → Medium 倾向
+- 只有 Read/Glob/Grep → Low 倾向
+- metadata.openclaw.requires.env 含凭证 → 权力升级
+
+#### Audit Status（权力是否合理）
+
+基于审计结果评估，与 Risk Level 正交：
+
+| Audit Status | 判定条件 | 含义 |
+|-------------|---------|------|
+| **Pass** | 无 Critical + 无 Important + 综合分 ≥ 7.0 | 可发布 |
+| **Review** | 无 Critical + 少量 Important + 综合分 ≥ 5.0 | 建议修复后发布 |
+| **Warn** | 有 Important 涉及安全 + 综合分 ≥ 5.0 | 需重点修复 |
+| **Fail** | 有 Critical 或综合分 < 5.0 | 不可发布 |
+
+#### Risk-Status 矩阵解读
+
+| | Pass | Review | Warn | Fail |
+|---|------|--------|------|------|
+| **High Risk** | ✅ 权力大但已披露且比例适当，可发布 | ⚠️ 权力大且有遗漏，修复后可发布 | ⚠️ 权力大且有问题，需重点修复 | ❌ 不可发布 |
+| **Medium Risk** | ✅ 可发布 | ⚠️ 修复后可发布 | ⚠️ 需修复 | ❌ 不可发布 |
+| **Low Risk** | ✅ 可发布 | ⚠️ 可发布但建议修复 | ⚠️ 需修复 | ❌ 不可发布 |
+
+**关键原则**：High Risk + Pass 是完全合理的——一个发布技能自然需要 High Risk 权力，只要权力已披露、目的对齐、比例适当，Audit Status 可以是 Pass。
